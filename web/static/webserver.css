@@ -1,0 +1,100 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 450px;
+    width: 100%;
+}
+
+h1 {
+    color: #1a73e8;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+p {
+    color: #555;
+    margin-bottom: 30px;
+}
+
+#upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.file-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+input[type="file"] {
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.file-input-label {
+    display: inline-block;
+    padding: 12px 20px;
+    background-color: #e9ecef;
+    border: 2px dashed #ced4da;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+    width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+input[type="file"]:hover+.file-input-label {
+    background-color: #dee2e6;
+    border-color: #adb5bd;
+}
+
+
+button {
+    background-color: #1a73e8;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #1558b8;
+}
+
+#status-message {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+#status-message.success {
+    color: #28a745;
+}
+
+#status-message.error {
+    color: #dc3545;
+}

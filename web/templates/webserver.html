@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 OTA Uploader</title>
+    <link rel="stylesheet" href="./static/webserver.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>ESP32 Firmware Uploader</h1>
+        <p>Chọn file firmware (.bin) để cập nhật cho thiết bị qua Wi-Fi.</p>
+
+        <form id="upload-form" action="/upload" method="POST" enctype="multipart/form-data">
+
+            <div class="file-input-wrapper">
+                <input type="file" id="firmware" name="firmware" accept=".bin" required>
+                <label for="firmware" class="file-input-label">Chọn File .bin</label>
+            </div>
+
+            <button type="submit" id="upload-button">Nạp Firmware</button>
+
+        </form>
+
+        <div id="status-message"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+                const uploadForm = document.getElementById('upload-form');
+                const firmwareInput = document.getElementById('firmware');
+                const uploadButton = document.getElementById('upload-button');
+                const statusMessage = document.getElementById('status-message');
+                const fileInputLabel = document.querySelector('.file-input-label');
+                const originalLabelText = fileInputLabel.textContent;
+
+                firmwareInput.addEventListener('change', () => {
+                    if (firmwareInput.files.length > 0) {
+                        const fileName = firmwareInput.files[0].name;
+                        fileInputLabel.textContent = fileName;
+                    } else {
+                        fileInputLabel.textContent = originalLabelText;
+                    }
+                });
+
+                uploadForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+
+                    if (firmwareInput.files.length === 0) {
+                        statusMessage.textContent = 'Vui lòng chọn một file .bin!';
+                        statusMessage.className = 'error';
+                        return;
+                    }
+
+                    const file = firmwareInput.files[0];
+                    const fileName = file.name.toLowerCase();
+
+                    // ✅ Kiểm tra đuôi file
+                    if (!fileName.endsWith('.bin')) {
+                        statusMessage.textContent = 'Chỉ chấp nhận file có đuôi .bin!';
+                        statusMessage.className = 'error';
+                        firmwareInput.value = ''; // reset input
+                        fileInputLabel.textContent = originalLabelText;
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('firmware', file);
+
+                    uploadButton.disabled = true;
+                    uploadButton.textContent = 'Đang nạp...';
+                    statusMessage.textContent = 'Đang tải file lên server...';
+                    statusMessage.className = '';
+
+                    try {
+                        const response = await fetch('/api/upload_bin', {
+                            method: 'POST',
+                            body: formData,
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            statusMessage.textContent = result.message || 'Nạp firmware thành công!';
+                            statusMessage.className = 'success';
+                        } else {
+                            statusMessage.textContent = `Lỗi: ${result.error || 'Có lỗi xảy ra.'}`;
+                            statusMessage.className = 'error';
+                        }
+
+                    } catch (error) {
+                        console.error('Fetch Error:', error);
+                        statusMessage.textContent = 'Lỗi mạng hoặc không thể kết nối đến server.';
+                        statusMessage.className = 'error';
+                    } finally {
+                        uploadButton.disabled = false;
+                        uploadButton.textContent = 'Nạp Firmware';
+                    }
+                });
+            });
+    </script>
+</body>
+
+</html>
