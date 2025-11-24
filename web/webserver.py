@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, render_template, request, send_from_directory
 import os
 import json
+import binascii
+
 
 app = Flask(__name__)
 
@@ -31,8 +33,12 @@ def upload_bin():
     # 4. Tạo folder firmware nếu chưa tồn tại
     os.makedirs("./firmware", exist_ok=True)
     file.save(os.path.join("./firmware", "latest.bin"))
-
-    version_data = {"version": file.filename}
+    # 5. Tính CRC32 của file
+    with open(os.path.join("./firmware", "latest.bin"), "rb") as f:
+        data = f.read()
+        checksum = binascii.crc32(data, 0xFFFFFFFF) & 0xFFFFFFFF  # đảm bảo 32-bit unsigned
+        checksum ^= 0xFFFFFFFF
+    version_data = {"version": file.filename, "checksum": checksum}
     with open(VERSION_FILE, "w") as f:
         json.dump(version_data, f, indent=4)
     return jsonify({"message": "Firmware uploaded successfully!"}), 200
