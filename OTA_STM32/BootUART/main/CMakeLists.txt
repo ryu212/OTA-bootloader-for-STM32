@@ -1,3 +1,3 @@
-idf_component_register(SRCS "BootUART.c" "SetupSPIFFS.c" "HttpDriveDL.c" "WifiSetup.c" "BOOT_RESET.c" "Uart_command.c" 
+idf_component_register(SRCS "wifi_setup.c" "uart_command.c" "setup_SPIFFS.c" "http_connection.c" "main.c" "control.c" 
                     INCLUDE_DIRS ".")
 spiffs_create_partition_image(storage ../partition FLASH_IN_PROJECT)

@@ -1,5 +1,5 @@
-#include "HttpDriveDL.h"
-
+#include "http_conection.h"
+/*
 static const char *google_drive_cert_pem = \
 "-----BEGIN CERTIFICATE-----\n"
 "MIIFYjCCBEqgAwIBAgIQd70NbNs2+RrqIQ/E8FjTDTANBgkqhkiG9w0BAQsFADBX\n"
@@ -32,8 +32,8 @@ static const char *google_drive_cert_pem = \
 "+qduBmpvvYuR7hZL6Dupszfnw0Skfths18dG9ZKb59UhvmaSGZRVbNQpsg3BZlvi\n"
 "d0lIKO2d1xozclOzgjXPYovJJIultzkMu34qQb9Sz/yilrbCgj8=\n"
 "-----END CERTIFICATE-----\n";
-
-esp_err_t _http_event_handler(esp_http_client_event_t *evt)
+*/
+esp_err_t _http_event_handler_firmware(esp_http_client_event_t *evt)
 {
     static FILE *file = NULL;
     static int total_len = 0;
@@ -72,11 +72,11 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 }
 
 
-void http_download_file(void) {
+void http_download_firmware(void) {
     esp_http_client_config_t config = {
-        .url = "https://drive.google.com/uc?export=download&id=1liyh_KbWQifYqN93b4e7JPeQeUUG-brE", // Thay ID neu doi file 
+        .url = "http:10.42.0.1:5000/firmware/latest.bin", // Thay ID neu doi file 
         .method = HTTP_METHOD_GET, 
-        .event_handler = _http_event_handler, 
+        .event_handler = _http_event_handler_firmware, 
         .cert_pem = google_drive_cert_pem, 
         
     };

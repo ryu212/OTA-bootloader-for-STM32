@@ -4,12 +4,13 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "driver/gpio.h"
-#include "BOOT_RESET.h"
-#include "Uart_command.h"
-#include "SetupSPIFFS.h"
-#include "WifiSetup.h"
-#include "HttpDriveDL.h"
-
+//-----------USER Lib ----------------------------
+#include "control.h"
+#include "uart_command.h"
+#include "setup_SPIFFS.h"
+#include "wifi_setup.h"
+#include "http_connection.h"
+//--------------------------------------------
 #include <stdio.h>
 #include "esp_spiffs.h"
 #include "esp_log.h"

@@ -1,5 +1,5 @@
-#include "WifiSetup.h"
-#include "Wifi_info.h"
+#include "wifi_setup.h"
+#include "wifi_info.h"
 
 int s_retry_num = 0;
 EventGroupHandle_t s_wifi_event_group;
