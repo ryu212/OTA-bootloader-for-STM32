@@ -2,8 +2,8 @@
 #include "driver/gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-
-
+#include "http_connection.h"
+#include "uart_command.h"
 #define BOOT0 GPIO_NUM_32
 #define BOOT1 GPIO_NUM_33
 #define RST GPIO_NUM_5
@@ -45,5 +45,29 @@ void reset()
     vTaskDelay(100/ portTICK_PERIOD_MS);
 
 }
+void uart_boot_firmware()
+{
+    init_gpio_reset_boot();
+    vTaskDelay(3000/ portTICK_PERIOD_MS);
+    bootSet(MEMBOOT);
+    reset();
+    init_line();
+    vTaskDelay(1000/ portTICK_PERIOD_MS);
+    readout_unprotect();
+    printf("reset again!!!\n");
+    vTaskDelay(3000/ portTICK_PERIOD_MS);
+    init_line();
+    vTaskDelay(1000/ portTICK_PERIOD_MS);
+    erase();
+    flash_firmware("/spiffs/myprogram.bin");
+    bootSet(FLASHBOOT);
+    reset();
+    printf("Done kkk\n");
+}
 
+void uart_boot_new_firmware()
+{
+    http_download_firmware();
+    uart_boot_firmware();
+}
 

@@ -40,5 +40,5 @@ void setupSPIFFS()
     {
         ESP_LOGI("SPIFFS", "Partion info:  \n total: %d \n used: %d", total, used);
     }
-    
+
 }

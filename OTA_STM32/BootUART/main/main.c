@@ -4,12 +4,14 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "driver/gpio.h"
+
 //-----------USER Lib ----------------------------
 #include "control.h"
 #include "uart_command.h"
 #include "setup_SPIFFS.h"
 #include "wifi_setup.h"
 #include "http_connection.h"
+#include "nvs_control.h"
 //--------------------------------------------
 #include <stdio.h>
 #include "esp_spiffs.h"
@@ -32,34 +34,13 @@ void app_main(void)
 {
     setupSPIFFS();
     //Kiem tra NVS flash sau do bat wifi
-    esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-      ESP_ERROR_CHECK(nvs_flash_erase());
-      ret = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK(ret);
+    
+    nvs_init();
 
     ESP_LOGI("WIFI", "ESP_WIFI_MODE_STA");
     wifi_sta_init();
-
-    //Tai file 
-    http_download_firmware();
-    //Thuc hien boot UART
-    init_gpio_reset_boot();
     init_uart();
-    vTaskDelay(3000/ portTICK_PERIOD_MS);
-    bootSet(MEMBOOT);
-    reset();
-    init_line();
-    vTaskDelay(1000/ portTICK_PERIOD_MS);
-    readout_unprotect();
-    printf("reset again!!!\n");
-    vTaskDelay(3000/ portTICK_PERIOD_MS);
-    init_line();
-    vTaskDelay(1000/ portTICK_PERIOD_MS);
-    erase();
-    flash_firmware("/spiffs/myprogram.bin");
-    bootSet(FLASHBOOT);
-    reset();
-    printf("Done kkk\n");
+
+    uart_boot_new_firmware();
+    
 }

@@ -8,5 +8,6 @@
 void init_gpio_reset_boot();
 void bootSet(int bootMode);
 void reset();
-
+void uart_boot_firmware();
+void uart_boot_new_firmware();
 #endif
