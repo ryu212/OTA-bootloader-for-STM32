@@ -208,6 +208,7 @@
             } else if (bits & NACK_BIT) {
                 ESP_LOGW("TX_TASK", "Got NACK");
                 xEventGroupClearBits(event_group, NACK_BIT);
+                result = -1;
             }
         } else {
             ESP_LOGE("INIT_LINE", "Timeout waiting for response");
@@ -247,6 +248,7 @@
             } else if (bits & NACK_BIT) {
                 ESP_LOGW("TX_TASK", "Got NACK1");
                 xEventGroupClearBits(event_group, NACK_BIT);
+                result = -1;
             }
         } else {
             ESP_LOGE("ERASE", "Timeout waiting for response");
@@ -266,6 +268,7 @@
             } else if (bits & NACK_BIT) {
                 ESP_LOGW("TX_TASK", "Got NACK1");
                 xEventGroupClearBits(event_group, NACK_BIT);
+                result = -1;
             }
         } else {
             ESP_LOGE("ERASE_GLOBAL", "Timeout waiting for response");
@@ -305,6 +308,7 @@
             } else if (bits & NACK_BIT) {
                 ESP_LOGW("TX_TASK", "Got NACK1");
                 xEventGroupClearBits(event_group, NACK_BIT);
+                result = -1;
             }
         } else {
             ESP_LOGE("READOUT_UNPROTECT", "Timeout waiting for response");
@@ -323,7 +327,8 @@
                 xEventGroupClearBits(event_group, ACK_BIT);
             } else if (bits & NACK_BIT) {
                 ESP_LOGW("TX_TASK", "Got NACK2");
-                xEventGroupClearBits(event_group, ACK_BIT);
+                xEventGroupClearBits(event_group, NACK_BIT);
+                result = -1;
             }
         } else {
             ESP_LOGE("READOUT_UNPROTECT", "Timeout waiting for response");
@@ -355,7 +360,7 @@
         {
             printf("read %d bytes from file\n", bytes_read);
             printf("write at %ld\n", start);
-            write_flash(start, bytes_read, BLOCK);
+            while(write_flash(start, bytes_read, BLOCK) == -1);
             start+= bytes_read;
         }
         printf("Done flash!!!!!!!!!!!!!\n");
@@ -388,6 +393,7 @@
             } else if (bits & NACK_BIT) {
                 ESP_LOGW("TX_TASK", "Got NACK");
                 xEventGroupClearBits(event_group, NACK_BIT);
+                result = -1;
             }
         } else {
             ESP_LOGE("WRITE_MEM", "Timeout waiting for response");
@@ -413,6 +419,7 @@
             } else if (bits & NACK_BIT) {
                 ESP_LOGW("TX_TASK", "Got NACK2");
                 xEventGroupClearBits(event_group, NACK_BIT);
+                result = -1;
             }
         } else {
             ESP_LOGE("WRITE_MEM", "Timeout waiting for response");
@@ -439,6 +446,7 @@
             } else if (bits & NACK_BIT) {
                 ESP_LOGW("TX_TASK", "Got NACK3");
                 xEventGroupClearBits(event_group, NACK_BIT);
+                result = -1;
             }
         } else {
             ESP_LOGE("WRITE_MEM", "Timeout waiting for response");
