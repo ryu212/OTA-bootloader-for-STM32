@@ -1,4 +1,4 @@
-#include "http_conection.h"
+#include "http_connection.h"
 /*
 static const char *google_drive_cert_pem = \
 "-----BEGIN CERTIFICATE-----\n"
@@ -41,7 +41,7 @@ esp_err_t _http_event_handler_firmware(esp_http_client_event_t *evt)
     switch (evt->event_id) {
         case HTTP_EVENT_ON_CONNECTED:
             ESP_LOGI("HTTP", "HTTP Connected, opening file for writing");
-            file = fopen("/storage/myprogram.bin", "w+b");
+            file = fopen("/spiffs/myprogram.bin", "w+b");
             if (!file) {
                 ESP_LOGE("HTTP", "Failed to open file for writing");
                 return ESP_FAIL;
@@ -74,10 +74,10 @@ esp_err_t _http_event_handler_firmware(esp_http_client_event_t *evt)
 
 void http_download_firmware(void) {
     esp_http_client_config_t config = {
-        .url = "http:10.42.0.1:5000/firmware/latest.bin", // Thay ID neu doi file 
+        .url = "http://10.42.0.1:5000/firmware/latest.bin", // Thay ID neu doi file 
         .method = HTTP_METHOD_GET, 
         .event_handler = _http_event_handler_firmware, 
-        .cert_pem = google_drive_cert_pem, 
+        // .cert_pem = google_drive_cert_pem, 
         
     };
     esp_http_client_handle_t client = esp_http_client_init(&config);

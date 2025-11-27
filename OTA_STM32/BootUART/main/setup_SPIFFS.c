@@ -1,4 +1,4 @@
-#include "SetupSPIFFS.h"
+#include "setup_SPIFFS.h"
 #include <stdio.h>
 #include "esp_spiffs.h"
 #include <string.h>
@@ -17,8 +17,8 @@ void setupSPIFFS()
 {
     esp_vfs_spiffs_conf_t config = 
     {
-        .base_path = "/storage",
-        .partition_label = NULL,
+        .base_path = "/spiffs",
+        .partition_label = "spiffs",
         .max_files = 5,
         .format_if_mount_failed = true
     };

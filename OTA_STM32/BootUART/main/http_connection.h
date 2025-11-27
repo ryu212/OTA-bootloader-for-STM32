@@ -17,7 +17,7 @@
 #include "lwip/sys.h"
 
 
-esp_err_t _http_event_handler(esp_http_client_event_t *evt);
-void http_download_file(void);
+esp_err_t _http_event_handler_firmware(esp_http_client_event_t *evt);
+void http_download_firmware(void);
 
 #endif

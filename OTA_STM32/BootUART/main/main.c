@@ -43,7 +43,7 @@ void app_main(void)
     wifi_sta_init();
 
     //Tai file 
-    http_download_file();
+    http_download_firmware();
     //Thuc hien boot UART
     init_gpio_reset_boot();
     init_uart();
@@ -58,7 +58,7 @@ void app_main(void)
     init_line();
     vTaskDelay(1000/ portTICK_PERIOD_MS);
     erase();
-    flash_firmware("/storage/myprogram.bin");
+    flash_firmware("/spiffs/myprogram.bin");
     bootSet(FLASHBOOT);
     reset();
     printf("Done kkk\n");
