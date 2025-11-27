@@ -2,6 +2,7 @@ from flask import Flask, jsonify, render_template, request, send_from_directory
 import os
 import json
 import binascii
+import crcmod
 
 
 app = Flask(__name__)
@@ -34,10 +35,12 @@ def upload_bin():
     os.makedirs("./firmware", exist_ok=True)
     file.save(os.path.join("./firmware", "latest.bin"))
     # 5. Tính CRC32 của file
-    with open(os.path.join("./firmware", "latest.bin"), "rb") as f:
-        data = f.read()
-        checksum = binascii.crc32(data, 0xFFFFFFFF) & 0xFFFFFFFF  # đảm bảo 32-bit unsigned
-        checksum ^= 0xFFFFFFFF
+    crc32_func = crcmod.mkCrcFun(0x104C11DB7, rev=True, initCrc=0xFFFFFFFF, xorOut=0xFFFFFFFF)
+
+    with open("./firmware/latest.bin", "rb") as f:
+         data = f.read()
+         checksum = crc32_func(data)
+    print(f"checksum = {checksum}")
     version_data = {"version": file.filename, "checksum": checksum}
     with open(VERSION_FILE, "w") as f:
         json.dump(version_data, f, indent=4)

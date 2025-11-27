@@ -52,18 +52,23 @@ void uart_boot_firmware()
     copy_file("/spiffs/OTA1/rollback.bin","/spiffs/OTA0/firmware.bin");
     write_state(true);
     init_gpio_reset_boot();
-    vTaskDelay(3000/ portTICK_PERIOD_MS);
+    vTaskDelay(300/ portTICK_PERIOD_MS);
     bootSet(MEMBOOT);
     reset();
-    while(init_line() == -1);
-    vTaskDelay(1000/ portTICK_PERIOD_MS);
-    while(readout_unprotect() == -1);
+    while(init_line() == -1)
+    {vTaskDelay(100/ portTICK_PERIOD_MS);}
+    vTaskDelay(100/ portTICK_PERIOD_MS);
+    while(readout_unprotect() == -1)
+    {vTaskDelay(100/ portTICK_PERIOD_MS);}
     printf("reset again!!!\n");
-    vTaskDelay(3000/ portTICK_PERIOD_MS);
-    while(init_line() == -1);
-    vTaskDelay(1000/ portTICK_PERIOD_MS);
-    while(erase() == -1);
-    while(flash_firmware("/spiffs/OTA0/firmware.bin") == -1);
+    vTaskDelay(300/ portTICK_PERIOD_MS);
+    while(init_line() == -1)
+    {vTaskDelay(100/ portTICK_PERIOD_MS);}
+    vTaskDelay(100/ portTICK_PERIOD_MS);
+    while(erase() == -1)
+    {vTaskDelay(100/ portTICK_PERIOD_MS);};
+    while(flash_firmware("/spiffs/OTA0/firmware.bin") == -1)
+    {vTaskDelay(100/ portTICK_PERIOD_MS);};
     bootSet(FLASHBOOT);
     reset();
     printf("Done kkk\n");

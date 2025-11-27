@@ -117,7 +117,7 @@
         uint8_t sending_data = 0x7F;
         while (!stop_tasks) {
             sendDataBytes(TX_TASK_TAG, &sending_data, 1);
-            vTaskDelay(2000 / portTICK_PERIOD_MS);
+            vTaskDelay(1500 / portTICK_PERIOD_MS);
         }
         ESP_LOGI("TX_TASK", "tx_task exiting...");
         vTaskDelete(NULL);
@@ -188,7 +188,7 @@
             ESP_LOGE("INIT_LINE", "Failed to create semaphore");
             return -1;
         }
-        vTaskDelay(pdMS_TO_TICKS(7000)); // Consider reducing this delay
+        vTaskDelay(pdMS_TO_TICKS(500)); // Consider reducing this delay
     
         TaskHandle_t rx_task_handle, tx_task_handle;
         xTaskCreate(rx_task, "uart_rx_task", 4096, NULL, configMAX_PRIORITIES - 1, &rx_task_handle);
@@ -215,7 +215,7 @@
             result = -1;
         }
         stop_tasks = true;
-        vTaskDelay(pdMS_TO_TICKS(500)); // Allow tasks to exit cleanly
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Allow tasks to exit cleanly
     
         if (sema != NULL) {
             vSemaphoreDelete(sema);
@@ -230,7 +230,7 @@
         sema = xSemaphoreCreateBinary();
         if (sema == NULL) {
             ESP_LOGE("READOUT_UNPROTECT", "Failed to create semaphore");
-            return -1;
+            result = -1;
         }
         TaskHandle_t rx_task_handle;
         xTaskCreate(rx_task, "uart_rx_task", 4096, NULL, configMAX_PRIORITIES - 1, &rx_task_handle);
@@ -275,7 +275,7 @@
             result = -1;
         }
         stop_tasks = true;
-        vTaskDelay(pdMS_TO_TICKS(500)); // Allow tasks to exit cleanly
+        vTaskDelay(pdMS_TO_TICKS(2000)); // Allow tasks to exit cleanly
         
         if (sema != NULL) {
             vSemaphoreDelete(sema);
@@ -290,7 +290,7 @@
         sema = xSemaphoreCreateBinary();
         if (sema == NULL) {
             ESP_LOGE("READOUT_UNPROTECT", "Failed to create semaphore");
-            return -1;
+            result = -1;
         }
         TaskHandle_t rx_task_handle;
         xTaskCreate(rx_task, "uart_rx_task", 4096, NULL, configMAX_PRIORITIES - 1, &rx_task_handle);
@@ -335,7 +335,7 @@
             result = -1;
         }
         stop_tasks = true;
-        vTaskDelay(pdMS_TO_TICKS(500)); // Allow tasks to exit cleanly
+        vTaskDelay(pdMS_TO_TICKS(2000)); // Allow tasks to exit cleanly
         
         if (sema != NULL) {
             vSemaphoreDelete(sema);
@@ -453,7 +453,7 @@
             result = -1;
         }
         stop_tasks = true;
-        vTaskDelay(pdMS_TO_TICKS(500)); // Allow tasks to exit cleanly
+        vTaskDelay(pdMS_TO_TICKS(1500)); // Allow tasks to exit cleanly
         
         if (sema != NULL) {
             vSemaphoreDelete(sema);
@@ -463,3 +463,4 @@
     }
 
 
+    
