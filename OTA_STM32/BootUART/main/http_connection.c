@@ -1,4 +1,9 @@
 #include "http_connection.h"
+#include "esp_crc.h"
+#include "json_control.h"
+#include <stdint.h>
+#include <inttypes.h>  // Thêm vào đầu file
+
 /*
 static const char *google_drive_cert_pem = \
 "-----BEGIN CERTIFICATE-----\n"
@@ -33,15 +38,20 @@ static const char *google_drive_cert_pem = \
 "d0lIKO2d1xozclOzgjXPYovJJIultzkMu34qQb9Sz/yilrbCgj8=\n"
 "-----END CERTIFICATE-----\n";
 */
+char* current_ver = NULL;
+char* update_ver = NULL; 
+uint32_t checksum_cal = 0; 
+uint32_t checksum_get = 0;
 esp_err_t _http_event_handler_firmware(esp_http_client_event_t *evt)
 {
     static FILE *file = NULL;
-    static int total_len = 0;
+    static int total_len = 0xffffffff;
 
     switch (evt->event_id) {
         case HTTP_EVENT_ON_CONNECTED:
+            checksum_cal = 0xffffffff;
             ESP_LOGI("HTTP", "HTTP Connected, opening file for writing");
-            file = fopen("/spiffs/myprogram.bin", "w+b");
+            file = fopen("/spiffs/OTA0/firmware.bin", "w+b");
             if (!file) {
                 ESP_LOGE("HTTP", "Failed to open file for writing");
                 return ESP_FAIL;
@@ -52,18 +62,24 @@ esp_err_t _http_event_handler_firmware(esp_http_client_event_t *evt)
             break;
         case HTTP_EVENT_ON_DATA:
             ESP_LOGI("HTTP", "HTTP data received, len=%d", evt->data_len);
+            checksum_cal = esp_crc32_le(checksum_cal, evt->data, evt->data_len);
             if (file) {
                 fwrite(evt->data, 1, evt->data_len, file);
                 total_len += evt->data_len;
             }
             break;
+        
         case HTTP_EVENT_DISCONNECTED:
+            // checksum_cal &= 0xffffffff;
+            checksum_cal ^= 0xFFFFFFFF;
+            ESP_LOGI("CHECKSUM", "final checksum cal: 0x%" PRIX32, checksum_cal);
             ESP_LOGI("HTTP", "HTTP Disconnected, closing file");
             if (file) {
                 fclose(file);
                 file = NULL;
                 ESP_LOGI("HTTP", "File downloaded, total length=%d", total_len);
             }
+
             break;
         default:
             break;
@@ -72,7 +88,9 @@ esp_err_t _http_event_handler_firmware(esp_http_client_event_t *evt)
 }
 
 
-void http_download_firmware(void) {
+int http_download_firmware(void) {
+    http_download_version();
+    
     esp_http_client_config_t config = {
         .url = "http://10.42.0.1:5000/firmware/latest.bin", // Thay ID neu doi file 
         .method = HTTP_METHOD_GET, 
@@ -90,4 +108,87 @@ void http_download_firmware(void) {
         ESP_LOGE("HTTP", "HTTP request failed: %s", esp_err_to_name(err));
     }
     esp_http_client_cleanup(client);
+    if((checksum_cal == checksum_get))
+    {
+        ESP_LOGI("CHECKSUM", "CRC32 check good");
+        ESP_LOGI("CHECKSUM", "final checksum cal: 0x%" PRIX32, checksum_cal);
+        ESP_LOGI("CHECKSUM", "checksum get: 0x%" PRIX32, checksum_get);
+        return 0;
+    }
+    
+    ESP_LOGW("CHECKSUM", "CRC32 check bad");
+    ESP_LOGI("CHECKSUM", "final checksum cal: 0x%" PRIX32, checksum_cal);
+    ESP_LOGI("CHECKSUM", "checksum get: 0x%" PRIX32, checksum_get);
+    return -1;
+}
+
+
+esp_err_t _http_event_handler_version(esp_http_client_event_t *evt)
+{
+    free(update_ver); 
+    current_ver = dump_json_str("/spiffs/version.json", "version");
+    static FILE *file = NULL;
+    static int total_len = 0;
+    switch (evt->event_id) {
+        case HTTP_EVENT_ON_CONNECTED:
+            ESP_LOGI("HTTP", "HTTP Connected, opening file for writing");
+            file = fopen("/spiffs/version.json", "w+b");
+            if (!file) {
+                ESP_LOGE("HTTP", "Failed to open file for writing");
+                return ESP_FAIL;
+            }
+            else 
+                ESP_LOGI("HTTP", "Open file for writing successfully!!!");
+            total_len = 0;
+            break;
+        case HTTP_EVENT_ON_DATA:
+            ESP_LOGI("HTTP", "HTTP data received, len=%d", evt->data_len);
+            if (file) {
+                fwrite(evt->data, 1, evt->data_len, file);
+                total_len += evt->data_len;
+            }
+            break;
+        case HTTP_EVENT_DISCONNECTED:
+
+            ESP_LOGI("HTTP", "HTTP Disconnected, closing file");
+            if (file) {
+                fclose(file);
+                file = NULL;
+                ESP_LOGI("HTTP", "File downloaded, total length=%d", total_len);
+            }
+            update_ver = dump_json_str("/spiffs/version.json", "version");
+            checksum_get = dump_json_int("/spiffs/version.json", "checksum");
+            break;
+
+        default:
+            break;
+    }
+    return ESP_OK;
+}
+
+
+void http_download_version(void) {
+    esp_http_client_config_t config = {
+        .url = "http://10.42.0.1:5000/firmware/version.json", // Thay ID neu doi file 
+        .method = HTTP_METHOD_GET, 
+        .event_handler = _http_event_handler_version, 
+        // .cert_pem = google_drive_cert_pem, 
+        
+    };
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+    esp_err_t err = esp_http_client_perform(client);
+    if (err == ESP_OK) {
+        ESP_LOGI("HTTP", "HTTP Status = %d, content_length = %lld",
+                 esp_http_client_get_status_code(client),
+                 esp_http_client_get_content_length(client));
+    } else {
+        ESP_LOGE("HTTP", "HTTP request failed: %s", esp_err_to_name(err));
+    }
+    esp_http_client_cleanup(client);
+}
+
+bool new_version()
+{
+    http_download_version();
+    return (strcmp(update_ver, current_ver) != 0); 
 }

@@ -3,7 +3,7 @@
 
 #define FLASHBOOT 0
 #define MEMBOOT 1
-
+#include <stdbool.h>
 
 void init_gpio_reset_boot();
 void bootSet(int bootMode);

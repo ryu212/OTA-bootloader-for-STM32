@@ -15,9 +15,15 @@
 #include "esp_http_client.h"
 #include "lwip/err.h"
 #include "lwip/sys.h"
-
+#include <stdbool.h>
+#include "json_control.h"
+#include "string.h"
+extern char* current_ver;
+extern char* update_ver; 
 
 esp_err_t _http_event_handler_firmware(esp_http_client_event_t *evt);
-void http_download_firmware(void);
-
+int http_download_firmware(void);
+esp_err_t _http_event_handler_version(esp_http_client_event_t *evt);
+void http_download_version(void);
+bool new_version();
 #endif

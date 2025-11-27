@@ -12,7 +12,7 @@
 #include "nvs_flash.h"
 #include "lwip/err.h"
 #include "lwip/sys.h"
-
+#include <stdio.h>
 void setupSPIFFS()
 {
     esp_vfs_spiffs_conf_t config = 
@@ -40,5 +40,55 @@ void setupSPIFFS()
     {
         ESP_LOGI("SPIFFS", "Partion info:  \n total: %d \n used: %d", total, used);
     }
+    create_file_if_not_exists("/spiffs/OTA0/firmware.bin");
+    create_file_if_not_exists("/spiffs/OTA1/rollback.bin");
+    create_file_if_not_exists("/spiffs/OTA0/firmware.bin");
+}
 
+void create_file_if_not_exists(const char *path)
+{
+    FILE *f = fopen(path, "r");
+    if (f) {
+        // File đã tồn tại
+        fclose(f);
+        return;
+    }
+
+    // File chưa tồn tại → tạo mới
+    f = fopen(path, "w");
+    if (!f) {
+        printf("Failed to create file: %s\n", path);
+        return;
+    }
+
+    printf("File created: %s\n", path);
+    fclose(f);
+}
+void copy_file(const char* dst, const char* src)
+{
+    FILE *f_src = fopen(src, "rb");
+    if (!f_src) {
+        printf("Failed to open source: %s\n", src);
+        return;
+    }
+
+    FILE *f_dst = fopen(dst, "wb");
+    if (!f_dst) {
+        printf("Failed to open destination: %s\n", dst);
+        fclose(f_src);
+        return;
+    }
+
+    // Buffer trung gian (tối ưu: 1KB)
+    uint8_t buffer[1024];
+    size_t bytes;
+
+    while ((bytes = fread(buffer, 1, sizeof(buffer), f_src)) > 0) {
+        fwrite(buffer, 1, bytes, f_dst);
+    }
+
+    fclose(f_src);
+    fclose(f_dst);
+
+    printf("Copied file from %s -> %s\n", src, dst);
 }

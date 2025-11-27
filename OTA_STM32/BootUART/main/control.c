@@ -4,6 +4,8 @@
 #include "freertos/task.h"
 #include "http_connection.h"
 #include "uart_command.h"
+#include "setup_SPIFFS.h"
+#include "nvs_control.h"
 #define BOOT0 GPIO_NUM_32
 #define BOOT1 GPIO_NUM_33
 #define RST GPIO_NUM_5
@@ -47,6 +49,8 @@ void reset()
 }
 void uart_boot_firmware()
 {
+    copy_file("/spiffs/OTA1/rollback.bin","/spiffs/OTA0/firmware.bin");
+    write_state(true);
     init_gpio_reset_boot();
     vTaskDelay(3000/ portTICK_PERIOD_MS);
     bootSet(MEMBOOT);
@@ -59,10 +63,11 @@ void uart_boot_firmware()
     init_line();
     vTaskDelay(1000/ portTICK_PERIOD_MS);
     erase();
-    flash_firmware("/spiffs/myprogram.bin");
+    flash_firmware("/spiffs/OTA0/firmware.bin");
     bootSet(FLASHBOOT);
     reset();
     printf("Done kkk\n");
+    write_state(false);
 }
 
 void uart_boot_new_firmware()
