@@ -1,0 +1,5 @@
+#define WIFI_CONNECTED_BIT BIT0 //(1 << 0)
+#define WIFI_FAIL_BIT      BIT1 
+#define EXAMPLE_ESP_MAXIMUM_RETRY 5
+#define EXAMPLE_ESP_WIFI_SSID "Ldz"
+#define EXAMPLE_ESP_WIFI_PASS "longdeptrai"

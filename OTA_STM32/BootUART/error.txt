@@ -1,0 +1,2 @@
+[0;33mHINT: The issue is better to resolve by replacing format specifiers to 'PRI'-family macros (include <inttypes.h> header file).[0m
+ninja failed with exit code 1, output of the command is in the /home/long/esp_projects/BootUART/build/log/idf_py_stderr_output_173800 and /home/long/esp_projects/BootUART/build/log/idf_py_stdout_output_173800

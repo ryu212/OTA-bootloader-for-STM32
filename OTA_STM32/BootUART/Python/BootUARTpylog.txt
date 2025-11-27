@@ -1,0 +1,48 @@
+79
+79
+b'\x0b'
+22
+00
+01
+02
+11
+21
+31
+43
+63
+73
+82
+92
+ack: lmao == 79
+erasing flash done
+readout Unprotected done!!
+79
+79
+b'\x0b'
+22
+00
+01
+02
+11
+21
+31
+43
+63
+73
+82
+92
+ack: lmao == 79
+File size: 816 bytes
+ACK 1
+ACK 2
+write done block 0.0
+ACK 1
+ACK 2
+write done block 1.0
+ACK 1
+ACK 2
+write done block 2.0
+ACK 1
+ACK 2
+write done block 3.0
+Write done!!
