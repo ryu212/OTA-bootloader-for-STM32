@@ -10,6 +10,7 @@
 #define NVS_NAMESPACE "storage"
 #define NVS_KEY       "in_progress"
 #define TAG "nvs_state"
+#define NVS_KEY1       "rollback"
 void nvs_init()
 {
     esp_err_t ret = nvs_flash_init();
@@ -20,19 +21,17 @@ void nvs_init()
     ESP_ERROR_CHECK(ret);
 }
 
-void write_state(bool in_progress)
+void write_state_inprogress(bool in_progress)
 {
     nvs_handle_t handle;
     esp_err_t err;
 
-    // Mở namespace (NVS_READWRITE để có thể ghi)
     err = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &handle);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "NVS open failed: %s", esp_err_to_name(err));
         return;
     }
 
-    // Lưu boolean dưới dạng u8 (0 hoặc 1)
     uint8_t val = in_progress ? 1 : 0;
     err = nvs_set_u8(handle, NVS_KEY, val);
     if (err != ESP_OK) {
@@ -41,20 +40,20 @@ void write_state(bool in_progress)
         return;
     }
 
-    // Commit để chắc chắn dữ liệu được ghi vào flash
     err = nvs_commit(handle);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "nvs_commit failed: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "NVS commit failed: %s", esp_err_to_name(err));
         nvs_close(handle);
         return;
     }
 
-    ESP_LOGI(TAG, "Wrote %s=%d to NVS", NVS_KEY, val);
-
     nvs_close(handle);
+
+    ESP_LOGI(TAG, "Wrote in_progress=%d to NVS", val);
 }
 
-bool read_state()
+
+bool read_state_inprogress()
 {
     nvs_handle_t handle;
     esp_err_t err;
@@ -85,4 +84,56 @@ bool read_state()
     nvs_close(handle);
     return value != 0;  // convert u8 → bool
 }
+void write_state_rollback(bool rollback)
+{
+    nvs_handle_t handle;
+    esp_err_t err = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "NVS open failed: %s", esp_err_to_name(err));
+        return;
+    }
+
+    uint8_t val = rollback ? 1 : 0;
+    err = nvs_set_u8(handle, NVS_KEY1, val);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "nvs_set_u8(rollback) failed: %s", esp_err_to_name(err));
+        nvs_close(handle);
+        return;
+    }
+
+    err = nvs_commit(handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "NVS commit failed: %s", esp_err_to_name(err));
+    }
+
+    nvs_close(handle);
+    ESP_LOGI(TAG, "Wrote rollback=%d to NVS", val);
+}
+
+bool read_state_rollback()
+{
+    nvs_handle_t handle;
+    esp_err_t err;
+    uint8_t val = 0;
+
+    err = nvs_open(NVS_NAMESPACE, NVS_READONLY, &handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "NVS open failed: %s", esp_err_to_name(err));
+        return false; // default
+    }
+
+    err = nvs_get_u8(handle, NVS_KEY1, &val);
+    if (err == ESP_ERR_NVS_NOT_FOUND) {
+        ESP_LOGW(TAG, "Rollback flag not found, defaulting to false");
+        val = 0;
+    } else if (err != ESP_OK) {
+        ESP_LOGE(TAG, "nvs_get_u8 failed: %s", esp_err_to_name(err));
+        val = 0;
+    }
+
+    nvs_close(handle);
+    return (val == 1);
+}
+
+
 

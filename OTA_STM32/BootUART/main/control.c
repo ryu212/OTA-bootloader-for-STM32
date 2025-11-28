@@ -50,7 +50,7 @@ void reset()
 void uart_boot_firmware()
 {
     copy_file("/spiffs/OTA1/rollback.bin","/spiffs/OTA0/firmware.bin");
-    write_state(true);
+    write_state_inprogress(true);
     init_gpio_reset_boot();
     vTaskDelay(300/ portTICK_PERIOD_MS);
     bootSet(MEMBOOT);
@@ -67,12 +67,14 @@ void uart_boot_firmware()
     vTaskDelay(100/ portTICK_PERIOD_MS);
     while(erase() == -1)
     {vTaskDelay(100/ portTICK_PERIOD_MS);};
-    while(flash_firmware("/spiffs/OTA0/firmware.bin") == -1)
-    {vTaskDelay(100/ portTICK_PERIOD_MS);};
+    if(flash_firmware("/spiffs/OTA0/firmware.bin") == -1)
+        write_state_rollback(true);
+    else 
+        write_state_rollback(false);
     bootSet(FLASHBOOT);
     reset();
-    printf("Done kkk\n");
-    write_state(false);
+    printf("Done\n");
+    write_state_inprogress(false);
 }
 
 void uart_boot_new_firmware()

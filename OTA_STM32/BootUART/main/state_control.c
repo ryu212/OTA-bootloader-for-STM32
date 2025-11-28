@@ -4,5 +4,6 @@
 void update_status(status* status_var)
 {
     status_var -> start = (uint8_t)new_version();
-    status_var -> in_progress = (uint8_t)read_state();
+    status_var -> in_progress = (uint8_t)read_state_inprogress();
+    status_var -> rollback = (uint8_t)read_state_rollback();
 }
