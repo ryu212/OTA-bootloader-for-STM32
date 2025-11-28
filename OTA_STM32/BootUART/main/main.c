@@ -40,7 +40,13 @@ void app_main(void)
     ESP_LOGI("WIFI", "ESP_WIFI_MODE_STA");
     wifi_sta_init();
     init_uart();
+    while(1)
+    {
+        printf("new version: %d\n", (int)new_version()); 
+        vTaskDelay(5000/ portTICK_PERIOD_MS);
+    }
 
     uart_boot_new_firmware();
+
     
 }

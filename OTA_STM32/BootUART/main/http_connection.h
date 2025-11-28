@@ -25,5 +25,6 @@ esp_err_t _http_event_handler_firmware(esp_http_client_event_t *evt);
 int http_download_firmware(void);
 esp_err_t _http_event_handler_version(esp_http_client_event_t *evt);
 void http_download_version(void);
+bool file_exists(const char *path);
 bool new_version();
 #endif

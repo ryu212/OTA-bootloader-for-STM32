@@ -2,7 +2,10 @@
 #include "esp_crc.h"
 #include "json_control.h"
 #include <stdint.h>
-#include <inttypes.h>  // Thêm vào đầu file
+#include <inttypes.h>
+#include <sys/stat.h>
+
+// Thêm vào đầu file
 
 /*
 static const char *google_drive_cert_pem = \
@@ -125,8 +128,7 @@ int http_download_firmware(void) {
 
 esp_err_t _http_event_handler_version(esp_http_client_event_t *evt)
 {
-    free(update_ver); 
-    current_ver = dump_json_str("/spiffs/version.json", "version");
+    // if(update_ver)free(update_ver); 
     static FILE *file = NULL;
     static int total_len = 0;
     switch (evt->event_id) {
@@ -187,8 +189,25 @@ void http_download_version(void) {
     esp_http_client_cleanup(client);
 }
 
+
+bool file_exists(const char *path)
+{
+    struct stat st;
+    return (stat(path, &st) == 0);
+}
 bool new_version()
 {
+    if(!file_exists("/spiffs/version.json"))
+        current_ver = "";
+    else
+        current_ver = dump_json_str("/spiffs/version.json", "version");
+
+    if (!current_ver)
+        current_ver = "";
+
     http_download_version();
+    
+    printf("current ver: %s, update ver: %s\n", current_ver, update_ver);
+    if(!current_ver)return 1;
     return (strcmp(update_ver, current_ver) != 0); 
 }
