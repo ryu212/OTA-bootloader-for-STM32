@@ -6,7 +6,7 @@
 #include "esp_log.h"
 
 
-
+#define NVS_KEY_WIFI_DISCONNECT "wifi_disconnect"
 #define NVS_NAMESPACE "storage"
 #define NVS_KEY       "in_progress"
 #define TAG "nvs_state"
@@ -125,6 +125,59 @@ bool read_state_rollback()
     err = nvs_get_u8(handle, NVS_KEY1, &val);
     if (err == ESP_ERR_NVS_NOT_FOUND) {
         ESP_LOGW(TAG, "Rollback flag not found, defaulting to false");
+        val = 0;
+    } else if (err != ESP_OK) {
+        ESP_LOGE(TAG, "nvs_get_u8 failed: %s", esp_err_to_name(err));
+        val = 0;
+    }
+
+    nvs_close(handle);
+    return (val == 1);
+}
+
+
+void write_state_wifi_disconnect(bool disconnected)
+{
+    nvs_handle_t handle;
+    esp_err_t err = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "NVS open failed: %s", esp_err_to_name(err));
+        return;
+    }
+
+    uint8_t val = disconnected ? 1 : 0;
+    err = nvs_set_u8(handle, NVS_KEY_WIFI_DISCONNECT, val);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "nvs_set_u8(wifi_disconnect) failed: %s", esp_err_to_name(err));
+        nvs_close(handle);
+        return;
+    }
+
+    err = nvs_commit(handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "NVS commit failed: %s", esp_err_to_name(err));
+    }
+
+    nvs_close(handle);
+    ESP_LOGI(TAG, "Wrote wifi_disconnect=%d to NVS", val);
+}
+
+// Đọc trạng thái wifi_disconnect
+bool read_state_wifi_disconnect()
+{
+    nvs_handle_t handle;
+    esp_err_t err;
+    uint8_t val = 0;
+
+    err = nvs_open(NVS_NAMESPACE, NVS_READONLY, &handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "NVS open failed: %s", esp_err_to_name(err));
+        return false; // default
+    }
+
+    err = nvs_get_u8(handle, NVS_KEY_WIFI_DISCONNECT, &val);
+    if (err == ESP_ERR_NVS_NOT_FOUND) {
+        ESP_LOGW(TAG, "WiFi disconnect flag not found, defaulting to false");
         val = 0;
     } else if (err != ESP_OK) {
         ESP_LOGE(TAG, "nvs_get_u8 failed: %s", esp_err_to_name(err));

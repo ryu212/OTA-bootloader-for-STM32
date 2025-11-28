@@ -7,6 +7,7 @@ void write_state_inprogress(bool in_progress);
 void write_state_rollback(bool rollback);
 bool read_state_inprogress();
 bool read_state_rollback();
-
+void write_state_wifi_disconnect(bool disconnected);
+bool read_state_wifi_disconnect();
 
 #endif

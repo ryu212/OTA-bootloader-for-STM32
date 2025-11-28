@@ -42,7 +42,7 @@ void setupSPIFFS()
     }
     create_file_if_not_exists("/spiffs/OTA0/firmware.bin");
     create_file_if_not_exists("/spiffs/OTA1/rollback.bin");
-    create_file_if_not_exists("/spiffs/OTA0/firmware.bin");
+    create_file_if_not_exists("/spiffs/version.json");
 }
 
 void create_file_if_not_exists(const char *path)

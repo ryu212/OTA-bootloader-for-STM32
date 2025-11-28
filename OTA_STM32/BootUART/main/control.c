@@ -79,7 +79,10 @@ void uart_boot_firmware()
 
 void uart_boot_new_firmware()
 {
-    http_download_firmware();
+    while(http_download_firmware() == -1)
+    {
+        vTaskDelay(100/ portTICK_PERIOD_MS);
+    }
     uart_boot_firmware();
 }
 

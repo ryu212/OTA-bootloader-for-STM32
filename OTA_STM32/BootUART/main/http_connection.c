@@ -4,7 +4,8 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <sys/stat.h>
-
+#include "wifi_setup.h"
+#include "nvs_control.h"
 // Thêm vào đầu file
 
 /*
@@ -116,12 +117,14 @@ int http_download_firmware(void) {
         ESP_LOGI("CHECKSUM", "CRC32 check good");
         ESP_LOGI("CHECKSUM", "final checksum cal: 0x%" PRIX32, checksum_cal);
         ESP_LOGI("CHECKSUM", "checksum get: 0x%" PRIX32, checksum_get);
+        write_state_wifi_disconnect(false);
         return 0;
     }
     
     ESP_LOGW("CHECKSUM", "CRC32 check bad");
     ESP_LOGI("CHECKSUM", "final checksum cal: 0x%" PRIX32, checksum_cal);
     ESP_LOGI("CHECKSUM", "checksum get: 0x%" PRIX32, checksum_get);
+    write_state_wifi_disconnect(false);
     return -1;
 }
 
