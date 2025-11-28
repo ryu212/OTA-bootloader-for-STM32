@@ -12,6 +12,7 @@
 #include "wifi_setup.h"
 #include "http_connection.h"
 #include "nvs_control.h"
+#include "state_control.h"
 //--------------------------------------------
 #include <stdio.h>
 #include "esp_spiffs.h"
@@ -40,13 +41,22 @@ void app_main(void)
     ESP_LOGI("WIFI", "ESP_WIFI_MODE_STA");
     wifi_sta_init();
     init_uart();
+    status system_status = {0,0,0};
     while(1)
     {
-        printf("new version: %d\n", (int)new_version()); 
+        update_status(&system_status);
+        printf("system status:\n");
+        printf("start = %d\n in_progress = %d \n rollback = %d \n", system_status.start, system_status.in_progress, system_status.rollback);
+        if(system_status.start)
+            uart_boot_new_firmware();
+        else if(system_status.in_progress)
+            uart_boot_firmware();
+        else if(system_status.rollback)
+            roll_back();
         vTaskDelay(5000/ portTICK_PERIOD_MS);
     }
 
-    uart_boot_new_firmware();
+    
 
     
 }

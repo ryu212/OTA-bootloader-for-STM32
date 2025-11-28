@@ -81,3 +81,9 @@ void uart_boot_new_firmware()
     uart_boot_firmware();
 }
 
+void roll_back()
+{
+    copy_file("/spiffs/OTA0/firmware.bin","/spiffs/OTA1/rollback.bin");
+    uart_boot_firmware();
+}
+

@@ -10,4 +10,5 @@ void bootSet(int bootMode);
 void reset();
 void uart_boot_firmware();
 void uart_boot_new_firmware();
+void roll_back();
 #endif
