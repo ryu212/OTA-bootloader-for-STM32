@@ -33,9 +33,7 @@
 
 void app_main(void)
 {
-    setupSPIFFS();
-    //Kiem tra NVS flash sau do bat wifi
-    
+    setupSPIFFS();    
     nvs_init();
 
     ESP_LOGI("WIFI", "ESP_WIFI_MODE_STA");

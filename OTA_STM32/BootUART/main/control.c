@@ -84,6 +84,7 @@ void uart_boot_new_firmware()
         vTaskDelay(100/ portTICK_PERIOD_MS);
     }
     uart_boot_firmware();
+    copy_file("/spiffs/version.json", "/spiffs/pending_version.json");
 }
 
 void roll_back()

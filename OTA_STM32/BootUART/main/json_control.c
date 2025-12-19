@@ -21,7 +21,7 @@ uint32_t dump_json_int(const char* path, const char* key)
     free(buffer);
 
     if (!json) {
-        printf("JSON parse error\n");
+        printf("JSON parse int error in file path: %s\n", path);
         return 0;
     }
 
@@ -59,15 +59,15 @@ char* dump_json_str(const char* path, const char* key)
     free(buffer);
 
     if (!json) {
-        printf("JSON parse error\n");
-        return NULL;
+        printf("JSON parse string error in file path: %s\n", path);
+        return "0";
     }
 
     cJSON* item = cJSON_GetObjectItem(json, key);
     if (!cJSON_IsString(item)) {
         printf("Key not found or not string\n");
         cJSON_Delete(json);
-        return NULL;
+        return "0";
     }
 
     char* value = strdup(item->valuestring);  // cấp phát chuỗi

@@ -137,7 +137,7 @@ esp_err_t _http_event_handler_version(esp_http_client_event_t *evt)
     switch (evt->event_id) {
         case HTTP_EVENT_ON_CONNECTED:
             ESP_LOGI("HTTP", "HTTP Connected, opening file for writing");
-            file = fopen("/spiffs/version.json", "w+b");
+            file = fopen("/spiffs/pending_version.json", "w+b");
             if (!file) {
                 ESP_LOGE("HTTP", "Failed to open file for writing");
                 return ESP_FAIL;
@@ -161,8 +161,8 @@ esp_err_t _http_event_handler_version(esp_http_client_event_t *evt)
                 file = NULL;
                 ESP_LOGI("HTTP", "File downloaded, total length=%d", total_len);
             }
-            update_ver = dump_json_str("/spiffs/version.json", "version");
-            checksum_get = dump_json_int("/spiffs/version.json", "checksum");
+            update_ver = dump_json_str("/spiffs/pending_version.json", "version");
+            checksum_get = dump_json_int("/spiffs/pending_version.json", "checksum");
             break;
 
         default:
@@ -201,16 +201,17 @@ bool file_exists(const char *path)
 bool new_version()
 {
     if(!file_exists("/spiffs/version.json"))
-        current_ver = "";
+        current_ver = "0";
     else
         current_ver = dump_json_str("/spiffs/version.json", "version");
 
     if (!current_ver)
-        current_ver = "";
+        current_ver = "0";
 
     http_download_version();
     
     printf("current ver: %s, update ver: %s\n", current_ver, update_ver);
-    if(!current_ver)return 1;
+    if(!current_ver || (strcmp(current_ver, "0") == 0))return 1;
+    if(!update_ver || (strcmp(update_ver, "0") == 0))return 0;
     return (strcmp(update_ver, current_ver) != 0); 
 }

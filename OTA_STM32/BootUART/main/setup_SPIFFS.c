@@ -1,4 +1,5 @@
 #include "setup_SPIFFS.h"
+#include "http_connection.h"
 #include <stdio.h>
 #include "esp_spiffs.h"
 #include <string.h>
@@ -43,6 +44,7 @@ void setupSPIFFS()
     create_file_if_not_exists("/spiffs/OTA0/firmware.bin");
     create_file_if_not_exists("/spiffs/OTA1/rollback.bin");
     create_file_if_not_exists("/spiffs/version.json");
+    create_file_if_not_exists("/spiffs/pending_version.json");
 }
 
 void create_file_if_not_exists(const char *path)
