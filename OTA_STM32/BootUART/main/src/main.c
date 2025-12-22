@@ -13,6 +13,7 @@
 #include "http_connection.h"
 #include "nvs_control.h"
 #include "state_control.h"
+#include "websocket.h"
 //--------------------------------------------
 #include <stdio.h>
 #include "esp_spiffs.h"
@@ -35,7 +36,6 @@ void app_main(void)
 {
     setupSPIFFS();    
     nvs_init();
-
     ESP_LOGI("WIFI", "ESP_WIFI_MODE_STA");
     wifi_sta_init();
     init_uart();
@@ -47,10 +47,11 @@ void app_main(void)
         printf("start = %d\n in_progress = %d \n rollback = %d \n", system_status.start, system_status.in_progress, system_status.rollback);
         if(system_status.start)
             uart_boot_new_firmware();
-        else if(system_status.in_progress)
+        else if(system_status.in_progress)   
+        {   
             uart_boot_firmware();
-        else if(system_status.rollback)
-            roll_back();
+            copy_file("/spiffs/version.json", "/spiffs/pending_version.json");
+        }
         vTaskDelay(5000/ portTICK_PERIOD_MS);
     }
 

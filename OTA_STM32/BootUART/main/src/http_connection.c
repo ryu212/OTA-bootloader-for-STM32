@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include "wifi_setup.h"
 #include "nvs_control.h"
+#include "setup_SPIFFS.h"
 // Thêm vào đầu file
 
 /*
@@ -53,6 +54,7 @@ esp_err_t _http_event_handler_firmware(esp_http_client_event_t *evt)
 
     switch (evt->event_id) {
         case HTTP_EVENT_ON_CONNECTED:
+            copy_file("/spiffs/OTA1/rollback.bin", "/spiffs/OTA0/firmware.bin");
             checksum_cal = 0xffffffff;
             ESP_LOGI("HTTP", "HTTP Connected, opening file for writing");
             file = fopen("/spiffs/OTA0/firmware.bin", "w+b");
@@ -120,7 +122,7 @@ int http_download_firmware(void) {
         write_state_wifi_disconnect(false);
         return 0;
     }
-    
+    copy_file("/spiffs/OTA0/firmware.bin", "/spiffs/OTA1/rollback.bin");
     ESP_LOGW("CHECKSUM", "CRC32 check bad");
     ESP_LOGI("CHECKSUM", "final checksum cal: 0x%" PRIX32, checksum_cal);
     ESP_LOGI("CHECKSUM", "checksum get: 0x%" PRIX32, checksum_get);

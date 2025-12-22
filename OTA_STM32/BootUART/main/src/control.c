@@ -49,7 +49,7 @@ void reset()
 }
 void uart_boot_firmware()
 {
-    copy_file("/spiffs/OTA1/rollback.bin","/spiffs/OTA0/firmware.bin");
+    
     write_state_inprogress(true);
     init_gpio_reset_boot();
     vTaskDelay(300/ portTICK_PERIOD_MS);
@@ -87,9 +87,9 @@ void uart_boot_new_firmware()
     copy_file("/spiffs/version.json", "/spiffs/pending_version.json");
 }
 
-void roll_back()
+/*void roll_back()
 {
     copy_file("/spiffs/OTA0/firmware.bin","/spiffs/OTA1/rollback.bin");
     uart_boot_firmware();
-}
+}*/
 

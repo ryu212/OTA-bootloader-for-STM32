@@ -9,8 +9,5 @@
 |GND| GND |
 | 3v3 | 3v3|
 **Change information:**
-- Change wifi information in 'Wifi_info.h' 
-- Change download link in 'HttpDriveDL.c' in function void 'http_download_file(void)'
-- Change cert_pem in 'HttpDriveDL.c' by changing 'google_drive_cert_pem'
-- Get new certificate from google drive by command: 'openssl s_client -showcerts -connect drive.google.com:443 </dev/null > certs.txt'
-
+- Change wifi information in 'wifi_info.h' 
+- 
