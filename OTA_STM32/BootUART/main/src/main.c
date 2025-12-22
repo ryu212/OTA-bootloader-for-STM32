@@ -46,7 +46,10 @@ void app_main(void)
         printf("system status:\n");
         printf("start = %d\n in_progress = %d \n rollback = %d \n", system_status.start, system_status.in_progress, system_status.rollback);
         if(system_status.start)
-            uart_boot_new_firmware();
+            {
+                system_status.start = 0;
+                uart_boot_new_firmware();
+            }
         else if(system_status.in_progress)   
         {   
             uart_boot_firmware();
